@@ -1,0 +1,20 @@
+function [PMFunknown PMFnormal PMFrare] = getTestPMF(test_raw,test_GTT,ParamPR,ParamN,ParamR,active_set_normal,active_set_rare)
+
+M = size(test_raw,1);
+
+PMFunknown = getF(test_raw,ParamPR);
+
+if sum(active_set_normal)>=2
+PMFnormal = getF_multiclass(test_raw,test_GTT,2*ones(M,1),ParamN,active_set_normal);
+else
+    PMFnormal = zeros(M,length(active_set_normal));
+    PMFnormal(:,active_set_normal==1) = 1;
+end
+if sum(active_set_rare)>=2
+    PMFrare = getF_multiclass(test_raw,test_GTT,2*ones(M,1),ParamR,active_set_rare);
+else
+    PMFrare = zeros(M,length(active_set_rare));
+    PMFrare(:,active_set_rare==1) = 1;
+end
+end
+    
