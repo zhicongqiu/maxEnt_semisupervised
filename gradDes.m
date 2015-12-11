@@ -1,5 +1,7 @@
 function [ParamPR_old ParamN_old ParamR_old] = ...
-         gradDes(data_raw,data_GTT,label,a_u,ParamPR_old,ParamN_old,ParamR_old,active_set_normal,active_set_rare,numN,numR,pos,mode)
+         gradDes(data_raw,data_GTT,label,a_u,...
+		 ParamPR_old,ParamN_old,ParamR_old,...
+		 active_set_normal,active_set_rare,WN,WR,pos,mode)
 
 %initial step size and tolerance level
 step_size = 1e-3;
@@ -54,7 +56,9 @@ if num_active_rare>=2
     end
 end 
 
-Dold =  ObjF_meta(Fs,Fs_multiclassN,Fs_multiclassR,L2,data_GTT_tempN,data_GTT_tempR,label_tempN,label_tempR,label,active_set_normal,active_set_rare,numN,numR,a_u,mode);
+Dold =  ObjF_meta(Fs,Fs_multiclassN,Fs_multiclassR,L2,...
+		  data_GTT_tempN,data_GTT_tempR,label_tempN,label_tempR,...
+		  label,active_set_normal,active_set_rare,WN,WR,a_u,mode);
 %disp(Dold);
 Dnew = inf;
 updated = true;
@@ -71,15 +75,23 @@ while abs(Dnew-Dold)>=reltol||Dnew>Dold||isinf(Dold)
         temp_rare = 0;
         Fs = getF(data_raw,ParamPR_old);
         if num_active_normal>=2
-            Fs_multiclassN = getF_multiclass(data_tempN,data_GTT_tempN,label_tempN,ParamN_old,active_set_normal);
+            Fs_multiclassN = ...
+	    getF_multiclass(data_tempN,data_GTT_tempN,label_tempN,ParamN_old,active_set_normal);
         end
         if num_active_rare>=2
-            Fs_multiclassR = getF_multiclass(data_tempR,data_GTT_tempR,label_tempR,ParamR_old,active_set_rare);
+            Fs_multiclassR = ...
+	    getF_multiclass(data_tempR,data_GTT_tempR,label_tempR,ParamR_old,active_set_rare);
         end        
         
-        Dalpha0 = get_Dalpha(ones(size(data_raw,1),1),Fs,Fs_multiclassN,Fs_multiclassR,ParamPR_old.alpha0,label_tempN,label_tempR,label,active_set_normal,active_set_rare,numN,numR,a_u,mode);        
+        Dalpha0 = ...
+	get_Dalpha(ones(size(data_raw,1),1),Fs,Fs_multiclassN,Fs_multiclassR,...
+		   ParamPR_old.alpha0,label_tempN,label_tempR,label,...
+		   active_set_normal,active_set_rare,WN,WR,a_u,mode);        
         for i=1:size(data_raw,2)
-            Dalpha(i) = get_Dalpha(-1*data_raw(:,i),Fs,Fs_multiclassN,Fs_multiclassR,ParamPR_old.alpha(i),label_tempN,label_tempR,label,active_set_normal,active_set_rare,numN,numR,a_u,mode);
+            Dalpha(i) = ... 
+	    get_Dalpha(-1*data_raw(:,i),Fs,Fs_multiclassN,Fs_multiclassR,...
+		       ParamPR_old.alpha(i),label_tempN,label_tempR,label,...
+		       active_set_normal,active_set_rare,WN,WR,a_u,mode);
         end
         temp_PR = temp_PR+Dalpha0^2+norm(Dalpha)^2;
         
@@ -90,11 +102,15 @@ while abs(Dnew-Dold)>=reltol||Dnew>Dold||isinf(Dold)
             DbetaN = zeros(length(tempN)-1,size(data_raw,2));           
             for i=1:length(tempN)-1
                 Dbeta0N(i) = ...
-                    get_Dbeta(ones(size(data_tempN,1),1),Fs(label~=1),Fs_multiclassN,ParamN_old(tempN(i)).beta0,data_GTT_tempN,label_tempN,tempN(i),active_set_normal,num_active_normal,numN,numR,a_u,mode,false);
+                get_Dbeta(ones(size(data_tempN,1),1),Fs(label~=1),Fs_multiclassN,...
+			  ParamN_old(tempN(i)).beta0,data_GTT_tempN,label_tempN,tempN(i),...
+			  active_set_normal,num_active_normal,WN,WR,a_u,mode,false);
                 temp_normal = temp_normal+Dbeta0N(i)^2;
                 for j=1:size(data_raw,2)
                     DbetaN(i,j) = ...
-                        get_Dbeta(data_tempN(:,j),Fs(label~=1),Fs_multiclassN,ParamN_old(tempN(i)).beta(j),data_GTT_tempN,label_tempN,tempN(i),active_set_normal,num_active_normal,numN,numR,a_u,mode,false);
+                    get_Dbeta(data_tempN(:,j),Fs(label~=1),Fs_multiclassN,...
+			      ParamN_old(tempN(i)).beta(j),data_GTT_tempN,label_tempN,tempN(i),...
+			      active_set_normal,num_active_normal,WN,WR,a_u,mode,false);
                 end
                 temp_normal = temp_normal+norm(DbetaN(i,:))^2;
             end
@@ -106,11 +122,16 @@ while abs(Dnew-Dold)>=reltol||Dnew>Dold||isinf(Dold)
             DbetaR = zeros(length(tempR)-1,size(data_raw,2));           
             for i=1:length(tempR)-1
                 Dbeta0R(i) = ...
-                    get_Dbeta(ones(size(data_tempR,1),1),Fs(label~=0),Fs_multiclassR,ParamR_old(tempR(i)).beta0,data_GTT_tempR,label_tempR,tempR(i),active_set_rare,num_active_rare,numN,numR,a_u,mode,true);
+                get_Dbeta(ones(size(data_tempR,1),1),Fs(label~=0),Fs_multiclassR,...
+			  ParamR_old(tempR(i)).beta0,data_GTT_tempR,label_tempR,tempR(i),...
+			  active_set_rare,num_active_rare,WN,WR,a_u,mode,true);
                 temp_rare = temp_rare+Dbeta0R(i)^2;
                 for j=1:size(data_raw,2)
                         DbetaR(i,j) = ...
-                            get_Dbeta(-1*data_tempR(:,j),Fs(label~=0),Fs_multiclassR,ParamR_old(tempR(i)).beta(j),data_GTT_tempR,label_tempR,tempR(i),active_set_rare,num_active_rare,numN,numR,a_u,mode,true);
+                        get_Dbeta(-1*data_tempR(:,j),Fs(label~=0),Fs_multiclassR,...
+				  ParamR_old(tempR(i)).beta(j),data_GTT_tempR,...
+				  label_tempR,tempR(i),active_set_rare,num_active_rare,...
+				  WN,WR,a_u,mode,true);
                 end
                 temp_rare = temp_rare+norm(DbetaR(i,:))^2;
             end
@@ -147,18 +168,23 @@ while abs(Dnew-Dold)>=reltol||Dnew>Dold||isinf(Dold)
     Fs = getF(data_raw,ParamPR_new);  
     L2 = norm([ParamPR_new.alpha0 ParamPR_new.alpha])^2;
     if num_active_normal>=2
-        Fs_multiclassN = getF_multiclass(data_tempN,data_GTT_tempN,label_tempN,ParamN_new,active_set_normal);
+        Fs_multiclassN = ...
+	getF_multiclass(data_tempN,data_GTT_tempN,label_tempN,...
+			ParamN_new,active_set_normal);
         for i=1:length(tempN)-1
             L2 = L2+norm([ParamN_new(tempN(i)).beta0 ParamN_new(tempN(i)).beta])^2;
         end
     end
     if num_active_rare>=2
-        Fs_multiclassR = getF_multiclass(data_tempR,data_GTT_tempR,label_tempR,ParamR_new,active_set_rare);
+        Fs_multiclassR = ...
+	getF_multiclass(data_tempR,data_GTT_tempR,label_tempR,ParamR_new,active_set_rare);
         for i=1:length(tempR)-1
             L2 = L2+norm([ParamR_new(tempR(i)).beta0 ParamR_new(tempR(i)).beta])^2;
         end
     end    
-    Dnew = ObjF_meta(Fs,Fs_multiclassN,Fs_multiclassR,L2,data_GTT_tempN,data_GTT_tempR,label_tempN,label_tempR,label,active_set_normal,active_set_rare,numN,numR,a_u,mode);
+    Dnew = ...
+    ObjF_meta(Fs,Fs_multiclassN,Fs_multiclassR,L2,data_GTT_tempN,data_GTT_tempR,...
+	      label_tempN,label_tempR,label,active_set_normal,active_set_rare,WN,WR,a_u,mode);
     %fprintf('new is %f, old is %f\n',Dnew,Dold);
     if Dnew<Dold
         updated = true;
