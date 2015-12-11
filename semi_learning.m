@@ -25,6 +25,7 @@ function [ROC_AUC ERROR SPARSITY] = semi_learning(data_raw,data_p,data_GT,...
 if ~ismember(rare_exist,[0 1])
    error('please specify if rare classes exist, 0 if not used')
 end
+
 %make sure there is the specified mode
 if ~ismember(mode,[0 1 2 3])
    error('please specify modes: 0, 1, 2 or 3')
@@ -78,20 +79,13 @@ for i=1:num_train
         WR = WR+1;
     end
 end
-%{
-%label only one sample from each category
-for i=num_train+1:M
-    if data_GTT(i,2)==1
-        if active_set_rare(data_GTT(i,1))==0
-            active_set_rare(data_GTT(i,1)) = 1;
-            label(i) = 1;
-            WR = WR+1;
-        end
-    end
+
+if sum(active_set_normal)<2 && rare_exist==false
+   error('there is unknown catetory in standard LR learning...')
 end
-%}
 
 SPARSITY = struct;
+ERROR = struct;
 ParamN = struct;
 ParamR = struct;
 ParamPR = struct;
@@ -99,20 +93,22 @@ for i=1:length(normal_class)
   ParamN(i).beta = 1e-6*ones(1,K_O);
   ParamN(i).beta0 = 0;
 end
-for i=1:length(rare_class) 
-  %{
+
+if rare_exist
+  for i=1:length(rare_class) 
+    %{
     if pval4R==false
         ParamR(i).beta = 1e-6*ones(1,K_O);
     else
         ParamR(i).beta = 1e-6*ones(1,K_P);
     end
-  %}
-  ParamR(i).beta = 1e-6*ones(1,K_O);
-  ParamR(i).beta0 = 0;
+    %}
+    ParamR(i).beta = 1e-6*ones(1,K_O);
+    ParamR(i).beta0 = 0;
+  end
+  ParamPR.alpha = 1e-6*ones(1,K_P);
+  ParamPR.alpha0 = 0;
 end
-ParamPR.alpha = 1e-6*ones(1,K_P);
-ParamPR.alpha0 = 0;
-
     
 a_u = 0.2;%DoCV(data_raw,N_O,data_p,N_P,data_GTT,label,active_set_normal,active_set_rare,pval4R,true);
 disp(a_u);
@@ -124,7 +120,7 @@ end
 [ParamPR ParamN ParamR] = ...
 gradDes(data_raw,data_p,data_GTT,label,a_u,ParamPR,ParamN,ParamR,...
 	active_set_normal,active_set_rare,...
-	WN,WR,pos,mode);
+	WN,WR,pos,mode,rare_exist);
 %{
 else
   [ParamPR ParamN ParamR] = ...
@@ -134,31 +130,32 @@ end
 %}
 %test PMF based on current parameters
 [test_PMFunknown test_PMFnormal test_PMFrare] = ...
-getTestPMF(test_raw,test_p,test_GTT,ParamPR,ParamN,ParamR,active_set_normal,active_set_rare);
+getTestPMF(test_raw,test_p,test_GTT,ParamPR,ParamN,ParamR,...
+	   active_set_normal,active_set_rare,rare_exist);
     
-%sparsity measure
-SPARSITY.ParamPR = ParamPR;
-SPARSITY.PR_mag = norm(ParamPR.alpha);
-SPARSITY.PR_sparse = sum(ParamPR.alpha==0)/length(ParamPR.alpha);    
-SPARSITY.ParamN = ParamN(active_set_normal==1);
-SPARSITY.ParamR = ParamR(active_set_rare==1);
-SPARSITY.active_set_normal = active_set_normal;
-SPARSITY.active_set_rare = active_set_rare;
-    
-%test set performance measure
-ROC_AUC = calculate_ROC(test_PMFunknown,test_GTT);
-%display ROC_AUC
-disp(ROC_AUC);
-
 %error rate on test set
 [error FAR FNR error_CN error_CR error_avgC] = ...
-calculate_error(test_PMFunknown,test_PMFnormal,test_PMFrare,test_GTT,0);
+calculate_error(test_PMFunknown,test_PMFnormal,test_PMFrare,test_GTT,0,rare_exist);
 disp(error_avgC);
-    
-ERROR = struct;
-ERROR.error = error; ERROR.FAR = FAR; ERROR.FNR = FNR;
-ERROR.error_CN = error_CN; ERROR.error_CR = error_CR;
-ERROR.avgC = error_avgC;
 
-    
-    
+%sparsity measure
+if rare_exist
+  SPARSITY.ParamPR = ParamPR;
+  SPARSITY.PR_mag = norm(ParamPR.alpha);
+  SPARSITY.PR_sparse = sum(ParamPR.alpha==0)/length(ParamPR.alpha);
+  SPARSITY.ParamR = ParamR(active_set_rare==1);
+  SPARSITY.active_set_rare = active_set_rare;
+  ERROR.FAR = FAR; ERROR.FNR = FNR;
+  ERROR.error_CN = error_CN; ERROR.error_CR = error_CR;
+  %test set performance measure
+  ROC_AUC = calculate_ROC(test_PMFunknown,test_GTT);
+  %display ROC_AUC
+  disp(ROC_AUC);
+else 
+     ROC_AUC = 0;
+end
+
+SPARSITY.ParamN = ParamN(active_set_normal==1);
+SPARSITY.active_set_normal = active_set_normal;
+ERROR.error = error;
+ERROR.avgC = error_avgC;    
