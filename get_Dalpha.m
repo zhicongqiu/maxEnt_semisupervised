@@ -1,4 +1,6 @@
-function [Dalpha] = get_Dalpha(data,Fs,Fs_multiclassN,Fs_multiclassR,w,label_N,label_R,label,active_set_normal,active_set_rare,numN,numR,a_u,mode)
+function [Dalpha] = get_Dalpha(data,Fs,Fs_multiclassN,Fs_multiclassR,...
+			       w,label_N,label_R,label,active_set_normal,...
+			       active_set_rare,WN,WR,a_u,mode)
 sum0 = 0;
 sum1 = 0;
 sum2 = 0;
@@ -27,7 +29,8 @@ if num_normal>=2 && (mode==3||mode==2)
     for i=1:size(Fs_U,1)
         for j=1:length(tempN)
             sum2N = sum2N + ...
-                Fs_U(i)*(1-Fs_U(i))*data_U(i)*(log(1/num_normal)-log(Fn_U(i,tempN(j))));
+                    Fs_U(i)*(1-Fs_U(i))*data_U(i)*...
+		    (log(1/num_normal)-log(Fn_U(i,tempN(j))));
         end        
     end    
 end
@@ -37,7 +40,8 @@ if num_rare>=2 && (mode==3||mode==2)
     for i=1:size(Fs_U,1)    
         for j=1:length(tempR)               
             sum2R = sum2R -...
-                Fs_U(i)*(1-Fs_U(i))*data_U(i)*(log(1/num_rare)-log(Fr_U(i,tempR(j))));
+                Fs_U(i)*(1-Fs_U(i))*data_U(i)*...
+		(log(1/num_rare)-log(Fr_U(i,tempR(j))));
         end
     end   
 end
@@ -46,7 +50,7 @@ end
 if num_rare==0
     num_rare=1;
 end
-if numR==0
+if WR==0
     if mode~=3&&mode~=1
         Dalpha = (1-a_u)*(sum0+sum1)...
             +a_u*(0.5*sum2+sum2N+sum2R);
@@ -59,13 +63,13 @@ if numR==0
     end
 else
     if mode~=3&&mode~=1
-        Dalpha = (1-a_u)*(sum0+(numN/numR)*sum1)...
-            +a_u*(0.5*sum2+sum2N/num_normal+sum2R/num_rare);
+      Dalpha = (1-a_u)*(sum0+(WN/WR)*sum1)...
+	       +a_u*(0.5*sum2+sum2N/num_normal+sum2R/num_rare);
     elseif mode==3
-        Dalpha = (1-a_u)*(sum0+(numN/numR)*sum1)...
-            -a_u*(0.5*sum2+sum2N/num_normal+sum2R/num_rare);
+      Dalpha = (1-a_u)*(sum0+(WN/WR)*sum1)...
+               -a_u*(0.5*sum2+sum2N/num_normal+sum2R/num_rare);
     elseif mode==1
-        Dalpha = (1-a_u)*(sum0+(numN/numR)*sum1)...
-            +a_u*2*w;        
+      Dalpha = (1-a_u)*(sum0+(WN/WR)*sum1)...
+               +a_u*2*w;        
     end
 end

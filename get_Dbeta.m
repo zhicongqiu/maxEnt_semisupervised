@@ -1,4 +1,5 @@
-function Dbeta = get_Dbeta(data,Fa,Fs_multiclass,w,data_GTT_temp,label_temp,l,active_set,num,numN,numR,a_u,mode,rare)
+function Dbeta = get_Dbeta(data,Fa,Fs_multiclass,w,data_GTT_temp,...
+			   label_temp,l,active_set,num,WN,WR,a_u,mode,rare)
 
 sum0 = 0;
 sum1 = 0;
@@ -29,11 +30,11 @@ end
 
 if rare==true
 if mode~=3||mode~=1
-    Dbeta = (1-a_u)*(numN/numR)*(sum0+sum1)+a_u*sum2/num;
+    Dbeta = (1-a_u)*(WN/WR)*(sum0+sum1)+a_u*sum2/num;
 elseif mode==3
-    Dbeta = (1-a_u)*(numN/numR)*(sum0+sum1)-a_u*sum2/num;
+    Dbeta = (1-a_u)*(WN/WR)*(sum0+sum1)-a_u*sum2/num;
 elseif mode==1
-    Dbeta = (1-a_u)*(numN/numR)*(sum0+sum1)+a_u*2*w;
+    Dbeta = (1-a_u)*(WN/WR)*(sum0+sum1)+a_u*2*w;
 end
 
 else

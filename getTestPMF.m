@@ -1,11 +1,11 @@
 function [PMFunknown PMFnormal PMFrare] = ...
-	 getTestPMF(test_raw,test_GTT,ParamPR,ParamN,ParamR,...
+	 getTestPMF(test_raw,test_p,test_GTT,ParamPR,ParamN,ParamR,...
 		    active_set_normal,active_set_rare,rare_exist)
 
 M = size(test_raw,1);
 
 if rare_exist
-  PMFunknown = getF(test_raw,ParamPR);
+  PMFunknown = getF(-test_p,ParamPR);
   if sum(active_set_rare)>=2
     PMFrare = getF_multiclass(test_raw,test_GTT,2*ones(M,1),ParamR,active_set_rare);
   else

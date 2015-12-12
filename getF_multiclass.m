@@ -1,6 +1,6 @@
 function Fs_multiclass = getF_multiclass(data,GTT,label,Param,active_set)
 
-M = size(data,1);
+N = size(data,1);
 
 for i=length(active_set):-1:1
     if active_set(i)==1
@@ -10,8 +10,8 @@ for i=length(active_set):-1:1
 end
 
 temp = find(active_set==1);
-Fs_multiclass = zeros(M,length(active_set));
-for i=1:M
+Fs_multiclass = zeros(N,length(active_set));
+for i=1:N
     sum = 1;
     for j=1:length(temp)-1 %use the first k-1 classes
         sum = sum+exp(Param(temp(j)).beta0+data(i,:)*Param(temp(j)).beta');
@@ -32,8 +32,6 @@ for i=1:M
         elseif Fs_multiclass(i,temp(end))<1e-10
             Fs_multiclass(i,temp(end))=1e-10;
         end        
-            
-
 end
             
         

@@ -4,11 +4,10 @@ function D = ...
 		   active_set_normal,active_set_rare,...
 		   WN,WR,a_u,mode,rare_exist)
 
-sum0 = 0;sum1 = 0;sum2 = 0;
-sum2N = 0;
-sum2R = 0;
-sumN = 0;
-sumR = 0;
+sum0 = 0; sum1 = 0; sum2 = 0;
+sumN = 0; sum2N = 0;
+sumR = 0; sum2R = 0;
+
 if rare_exist
   Fs_U = Fs(label==2);
 else

@@ -1,7 +1,7 @@
 function Fs = getF(data,ParamPR)
 
 %p-value feature, use - sign
-temp = exp(ParamPR.alpha0-data*ParamPR.alpha');
+temp = exp(ParamPR.alpha0+data*ParamPR.alpha');
 Fs = temp./(1+temp);
 
 %avoid assigning 1 or 0

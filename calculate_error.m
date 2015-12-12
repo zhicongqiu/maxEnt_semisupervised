@@ -1,5 +1,6 @@
 function [error FA FN error_CN error_CR error_avgC]= ...
-	 calculate_error(test_PMFunknown,test_PMFnormal,test_PMFrare,test_GTT,count,rare_exist)
+	 calculate_error(test_PMFunknown,test_PMFnormal,test_PMFrare,...
+			 test_GTT,count,rare_exist)
 
 %over-all classification error
 M = size(test_PMFnormal,1);
