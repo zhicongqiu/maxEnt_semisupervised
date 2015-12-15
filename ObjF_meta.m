@@ -8,11 +8,7 @@ sum0 = 0; sum1 = 0; sum2 = 0;
 sumN = 0; sum2N = 0;
 sumR = 0; sum2R = 0;
 
-if rare_exist
-  Fs_U = Fs(label==2);
-else
-  Fs_U = zeros(size(Fn_U,1),1);
-end
+
 
 num_normal = sum(active_set_normal==1);
 %inter-normal sum
@@ -27,6 +23,11 @@ if num_normal>=2
     tempN = find(active_set_normal==1);
 end
 
+if rare_exist
+  Fs_U = Fs(label==2);
+else
+  Fs_U = zeros(size(Fn_U,1),1);
+end
 
 if rare_exist
   num_rare = sum(active_set_rare==1);
@@ -55,7 +56,7 @@ if rare_exist
     end 
   end
 else
-    num_rare = 0
+    num_rare = 0;
     
 end
 

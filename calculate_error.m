@@ -17,9 +17,9 @@ if rare_exist
   total_rarePC = zeros(1,size(test_PMFrare,2));
   total_rare = M-total_normal;
 else
-  total_rare = 0
-  error_rarePC = 0
-  total_rarePC = 0
+  total_rare = 0;
+  error_rarePC = 0;
+  total_rarePC = 0;
 end
 
 error_normalPC= zeros(1,size(test_PMFnormal,2));
@@ -93,7 +93,7 @@ if count == 0 %report error rate on test set
       error_avgC = mean([avgN avgR]);
     else
       error_avgC = ...
-      mean(error_normalPC(total_normalPC~=0)./total_normalPC(total_normalPC~=0))
+      mean(error_normalPC(total_normalPC~=0)./total_normalPC(total_normalPC~=0));
     end
 
 end

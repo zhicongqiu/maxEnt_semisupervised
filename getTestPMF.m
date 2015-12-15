@@ -13,7 +13,7 @@ if rare_exist
     PMFrare(:,active_set_rare==1) = 1;
   end
 else
-    PMKunknown = 0;
+    PMFunknown = 0;
     PMFrare = 0;
 end
 
