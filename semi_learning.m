@@ -16,7 +16,8 @@ function [ROC_AUC ERROR SPARSITY] = ...
 %0:MLE regularization 
 %1:L2 regularization 
 %2: proposed maxEnt regularizer 
-%3: min_ent regularizer
+%3: min_ent regularizer without L2 (-1*maxEnt), not to be confused
+%with Bengio's min ent reg
 %rare_exist: 
 %1: enable rare category classification
 %0: standard LR classification on multiple classes
@@ -114,11 +115,12 @@ if rare_exist
   ParamPR.alpha0 = 0;
 end
     
-a_u = 0.2;
-%{
-DoCV(data_raw,K_O,data_p,K_P,data_GTT,label,...
-active_set_normal,active_set_rare,true,pos,mode,rare_exist,weighted);
-%}
+%a_u = 0.2;
+
+a_u = DoCV(data_raw,K_O,data_p,K_P,data_GTT,label,...
+	   active_set_normal,active_set_rare,true,...
+	   pos,mode,rare_exist,weighted);
+
 disp(a_u);
 if weighted
   WN = 1;WR = 1;

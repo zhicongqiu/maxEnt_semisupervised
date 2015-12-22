@@ -8,8 +8,6 @@ sum0 = 0; sum1 = 0; sum2 = 0;
 sumN = 0; sum2N = 0;
 sumR = 0; sum2R = 0;
 
-
-
 num_normal = sum(active_set_normal==1);
 %inter-normal sum
 if num_normal>=2
