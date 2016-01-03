@@ -45,7 +45,7 @@ end
 if length(data_raw)~=length(data_GT)||length(data_p)~=length(data_GT)
    error('number of training samples should be equal to number of labels')
 end
-if length(test_raw)~=length(data_GT)||length(test_p)~=length(data_GT)
+if length(test_raw)~=length(test_GT)||length(test_p)~=length(test_GT)
    error('number of test samples should be equal to number of labels')
 end
 
@@ -118,8 +118,8 @@ end
 a_u = 0.2;
 
 %a_u = DoCV(data_raw,K_O,data_p,K_P,data_GTT,label,...
-	   active_set_normal,active_set_rare,true,...
-	   pos,mode,rare_exist,weighted);
+%	   active_set_normal,active_set_rare,true,...
+%	   pos,mode,rare_exist,weighted);
 
 disp(a_u);
 if weighted
