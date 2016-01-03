@@ -115,9 +115,9 @@ if rare_exist
   ParamPR.alpha0 = 0;
 end
     
-%a_u = 0.2;
+a_u = 0.2;
 
-a_u = DoCV(data_raw,K_O,data_p,K_P,data_GTT,label,...
+%a_u = DoCV(data_raw,K_O,data_p,K_P,data_GTT,label,...
 	   active_set_normal,active_set_rare,true,...
 	   pos,mode,rare_exist,weighted);
 
